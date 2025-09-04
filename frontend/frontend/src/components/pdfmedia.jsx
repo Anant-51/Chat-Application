@@ -110,7 +110,13 @@ export default function DocumentMessage({ sender, time, fileName, fileSize, file
         </div>
 
         {/* Delivered Status */}
-        <span className="text-sm font-normal text-gray-500 dark:text-gray-400">Delivered</span>
+        {isOwnMessage&&(
+        <div className="flex justify-end items-center gap-1 text-xs text-gray-500 dark:text-gray-300 mt-1">
+    
+           <MessageStatusIcon status={status} />
+        </div>)
+        }
+       
       </div>
     </div>
   );

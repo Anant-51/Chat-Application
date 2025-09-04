@@ -21,11 +21,25 @@ const messageschema=new mongoose.Schema({
     pageCount:{
         type:Number
     },
+    messageType:{
+        type:String,
+        required:true,
+        default:'text'
+    },
     chat:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Chat",
         required:true
     },
+    recievedBy:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+    }],
+    readBy:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+    }],
+
     seenStatus:{
         type:Number,
         default:0

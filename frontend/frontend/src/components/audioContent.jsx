@@ -192,6 +192,12 @@ const ChatAudioBubble = ({ username, timestamp, audioUrl }) => {
           onCanPlay={() => setIsAudioReady(true)}
           
         />
+        {isOwnMessage && (
+    <div className="flex justify-end items-center gap-1 text-xs text-gray-500 dark:text-gray-300 mt-1">
+    
+      <MessageStatusIcon status={status} />
+    </div>
+  )}
       </div>
     </div>
   );

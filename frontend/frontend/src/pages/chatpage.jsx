@@ -3,13 +3,15 @@ import { useState,useCallback,useEffect,useRef} from 'react'
 import {List} from react-window
 import socket from '../socket.js'
 import useCentralStore from '../centralStore.jsx'
+import MessageRenderer from '../components/messageRenderer.jsx'
 const messages=useCentralStore((state)=>state.messages);
 const user=useCentralStore((state)=>state.user);
 const activeChatId=useCentralStore((state)=>state.activeChatId);
 const appendMessage=useCentralStore((state)=>state.addMessage);
 const prependMessage=useCentralStore((state)=>state.prependMessage);
 const setInitialMessages=useCentralStore((state)=>state.setInitialMessages);
-
+const setTypingInformationAdd=useCentralStore((state)=>state.setTypingInformationAdd);
+const setTypingInformationDelete=useCentralStore((state)=>state.setTypingInformationDelete);
 
 const updateMessageTick=useCentralStore((state)=>state.updateMessageTick);
 
@@ -83,11 +85,22 @@ const chatpage = () => {
         appendMessage(newMessage);
       }
     });
-      
+    socket.on("typing", (typingInformation) => {
+      if (typingInformation.ChatId === activeChatId) {
+        setTypingInformationAdd(typingInformation);
+      }
+    });
+    socket.on("stop typing", (typingInformation) => {
+      if (typingInformation.ChatId === activeChatId) {
+        setTypingInformationDelete(typingInformation);
+      }
+    });
     return () => {
       socket.off("new message");
       
       socket.off("user online");
+      socket.off("typing");
+      socket.off("stop typing");  
     };  
   }, [activeChatId, userId]);
  
@@ -228,7 +241,7 @@ const messageRow=({ index, style,data}) => {
     <div ref={rowRef} style={{...style,marginBottom:"10px"}}>
       {group.map((msg)=>(
         <div key={msg._id} style={{padding:"2px 5px"}}>
-          <b>{msg.sender}</b>:<b>{msg.content}</b>
+          <MessageRenderer message={msg} />
         </div>
       ))}
     </div>

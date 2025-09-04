@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from "react-hook-form";
 import { socket } from '../socket.js';
+import { debounce, set } from 'lodash';
+import { useCentralStore } from '../centralStore.jsx';
+const typingStatus=useRef(null);
+const activeChatId=useCentralStore((state)=>state.activeChatId);
+const userId=useCentralStore((state)=>state.user.id);
 
 
 
@@ -32,7 +37,7 @@ export default function MessageInput({messages, setMessages,chatId}) {
       socket.emit("send message",{
         senderId,
         message:data,
-        activeChatId,
+        chatId:activeChatId,
 
 
       });
@@ -43,6 +48,20 @@ export default function MessageInput({messages, setMessages,chatId}) {
     });
 
   }
+  const emitTyping=useCallback(debounce(() => {
+  
+    socket.emit("typing",{userId,activeChatId});
+  }, 200),[]);
+   const emitStopTyping=useCallback(debounce(() => {
+  
+    socket.emit("typing",{userId,activeChatId});
+  }, 1000),[]);
+  const handleChange = (e) => {
+    emitTyping();
+    emitStopTyping();
+  };
+
+
   return(
 <form onSubmit={handleSubmit(onSubmit)}>
    
@@ -61,7 +80,7 @@ export default function MessageInput({messages, setMessages,chatId}) {
             </svg>
             <span class="sr-only">Add emoji</span>
         </button>
-        <textarea id="chat" rows="1" class="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {...register("text",{
+        <textarea onChange={handleChange} id="chat" rows="1" class="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {...register("text",{
             required:true,
         })} placeholder="Your message..."></textarea>
             <button type="submit" class="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600">

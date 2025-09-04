@@ -8,13 +8,16 @@ import socket from "./socket";
     isAuthenticated:false,
     socket:null,
     seenStatus:"sent",
+    typingInformation:{},
+    unrecievedMessagesWhileOffline:[],
     appendMessage:(msg)=>{
       const {messages,user,activeChatId}=get();
       const chatId=msg.chat._id;
       const msgByChatId=messages[chatId] || [];
-     set((state)=>({messages:{...state.messages,[chatId]:[...msgByChatId,msg]}}));
+    
      if(activeChatId===chatId){
         /* set((state)=>({unreadMessages:{...state.unreadMessages,[chatId]:0}})); */
+         set((state)=>({messages:{...state.messages,[chatId]:[...msgByChatId,msg]}}));
         socket.emit("read",{msgId:msg._id,userId:user.id,chatId});
      }
      else{
@@ -102,7 +105,7 @@ import socket from "./socket";
       
 
     },
-
+    
 
     
     updateMessageTick:(msgId,chatId,seenStatus)=>{
@@ -114,9 +117,42 @@ import socket from "./socket";
         
       })
       set((state)=>({messages:{...state.messages,[chatId]:updatedMessage}}));
-    }
+    },
+    setTypingInformationAdd:(obj)=>{
+      const {typingInformation}=get();
+      const typingInformationByChatId=typingInformation[obj.chatId] || [];
+      if(!typingInformation[obj.chatId]){
+        typingInformation[obj.chatId]=[];
+      }
+      if(typingInformationByChatId.includes(obj.userId)){
+      typingInformationByChatId=typingInformation[obj.chatId].push(obj.userId);
+      }
    
-    
+      set((state)=>({typingInformation:{...state.typingInformation,[obj.chatId]:typingInformationByChatId}}));
+    },
+
+   setTypingInformationDelete:(obj)=>{
+      const {typingInformation}=get();
+      const typingInformationByChatId=typingInformation[obj.chatId] || {};
+      if(!typingInformation[obj.chatId]){
+        typingInformation[obj.chatId]=[];
+      }
+      typingInformationByChatId=typingInformation[obj.chatId].filter((id)=>id!==obj.userId);
+   
+      set((state)=>({typingInformation:{...state.typingInformation,[obj.chatId]:typingInformationByChatId}}));
+    },
+    handleUnreadMessagesWhileOffline:(messages)=>{
+      const {unrecievedMessagesWhileOffline}=get();
+      const{user}=get();
+      set((state)=>({unrecievedMessagesWhileOffline:[...unrecievedMessagesWhileOffline,msg]}));
+      unrecievedMessagesWhileOffline.forEach(msg=>{
+        const chatId=msg.chat._id;
+        const msgId=msg._id;
+        if(!msg.readBy?.includes(user.id)){
+          socket.emit("delievered",{msgId,userId:user.id,chatId});
+        }
+       })
+    }
 
      
 

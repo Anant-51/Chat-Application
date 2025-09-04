@@ -71,6 +71,11 @@ function FileMessageBase({ sender, time, fileName, fileSize, fileUrl, icon }) {
             {status === 'downloading' && <CircularProgressWithLabel value={progress} />}
           </div>
         </div>
+          {isOwnMessage && (
+      <div className="flex justify-end items-center text-xs text-gray-500 dark:text-gray-300 mt-1">
+        <MessageStatusIcon status={messageStatus} />
+      </div>
+    )}
       </div>
     </div>
   );

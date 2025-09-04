@@ -60,7 +60,7 @@ socket.on("join chat",(roomId)=>{
     console.log("User joined room:", roomId);
 });
 socket.on("send message",(newMessage)=>{
-    const chatId=newMessage.activeChatId;
+    const chatId=newMessage.chatId;
     if(!chat.users){
         console.error("Chat.users is not defined");
          
@@ -139,11 +139,11 @@ socket.on("delievered",async (msgId,userId,chatId)=>{
    io.to(userId).emit("updateUnreadMesages",{c,chatId});
 });
  
-    socket.on("typing",(chatId)=>{
-        socket.in(chatId).emit("typing");
+    socket.on("typing",(typingInfo)=>{
+        socket.in(typingInfo.chatId).emit("typing",typingInfo);
     });
-    socket.on("stop typing",(chatId)=>{
-        socket.in(chatId).emit("stop typing");
+    socket.on("stop typing",(typingInfo)=>{
+        socket.in(typingInfo.chatId).emit("stop typing",typingInfo);
     });
      
   

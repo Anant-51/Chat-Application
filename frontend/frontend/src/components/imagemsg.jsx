@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import CircularProgressWithLabel from './circular';
 import { set } from 'mongoose';
+import MessageStatusIcon from './messageStatusIcon';
 
 const DownloadOverlayButton = ({ fileUrl, imageAlt = 'file preview',message }) => {
   const [status, setStatus] = useState('idle'); // idle | downloading | done
@@ -31,7 +32,7 @@ const DownloadOverlayButton = ({ fileUrl, imageAlt = 'file preview',message }) =
    
 }
      setStatus('done');
-      const blob =await response.blob();
+      const blob = new Blob(chunks);
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = fileUrl.split('/').pop();
@@ -80,7 +81,7 @@ const DownloadOverlayButton = ({ fileUrl, imageAlt = 'file preview',message }) =
 
 
 
-const ChatBubble = ({ sender , time ,  fileUrl,message }) => {
+const ImageChatBubble = ({ sender , time ,  fileUrl,message }) => {
   return (
     <div className="flex items-start gap-2.5">
       <img className="w-8 h-8 rounded-full" src={fileUrl||''} />
@@ -93,11 +94,16 @@ const ChatBubble = ({ sender , time ,  fileUrl,message }) => {
           <div className="my-2.5">
             <DownloadOverlayButton fileUrl={fileUrl} message={message} />
           </div>
-          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">Delivered</span>
+           {isOwnMessage && (
+            <div className="flex justify-end items-center gap-1 text-xs text-gray-500 dark:text-gray-300 mt-1">
+              <MessageStatusIcon status={status} />
+            </div>
+          )}
+          
         </div>
       </div>
     </div>
   );
 };
 
-export default ChatBubble;
+export default ImageChatBubble;

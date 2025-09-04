@@ -6,21 +6,42 @@ import cloudinary from "../lib/cloudinary.config";
 import upload from "../utils/multer.util";
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
+import { type } from "os";
 const router = express.Router();
 router.use(express.json());
-router.get("/messages/:chatId", authMiddleware,async (req, res) => {
+
+
+router.get("/messages", authMiddleware,async (req, res) => {
     try{
-        const {chatId}=req.params;
-        const messages=await Message.find({chat:chatId}).populate("sender","username profile").populate("chat","users");
-        return res.status(200).json(messages);
+        const chatId=req.query.chatId;
+        if(!chatId){
+            return res.status(400).json({message:"Chat ID is required"});
+        }
+        let query={};
+
+        const cursor=req.query.cursor;
+        const limit=req.query.limit || 20;
+        limit=parseInt(limit);
+         if(cursor){
+            query={createdAt:{$lt:new Date(parseInt(cursor))}};
+         }
+
+      
+        const messages=await Message.find(query).populate("sender","username profile").populate("chat","users").sort({createdAt:-1}).limit(limit+1);
+        const hasMore=messages.length>limit;
+        if(hasMore){
+            messages.pop();
+        }
+        const nextCursor=hasMore?messages[messages.length-1].createdAt.toISOString():null;
+        return res.status(200).json({messages,nextCursor,hasMore});
     }catch(err){
-        console.error("Error fetching messages:", err);
+        console.error("Error fetching messages:" , err);
         return res.status(500).json({ message: "Internal server error", error: err.message });
     }});
-    router.post("/messages/:chatId",authMiddleware,upload.single("file"), async (req, res) => {
+    router.post("/messages/:chatId",authMiddleware,upload.single("File"), async (req, res) => {
         try{
             const {chatId}=req.params;
-            const {content}=req.body;
+            const content=req.body||req.file;
             const sender=req.user.id;
             if(!content || !sender){
                 return res.status(400).json({message:"Content and sender are required"});
@@ -31,7 +52,7 @@ router.get("/messages/:chatId", authMiddleware,async (req, res) => {
             let pageCount = null;
 
            if (req.file.mimetype === 'application/pdf') {
-           const dataBuffer = fs.readFileSync(filePath);
+           const dataBuffer = fs.readFileSync(localpath);
            const pdfData = await pdfParse(dataBuffer);
            pageCount = pdfData.numpages;
         }
@@ -47,6 +68,7 @@ router.get("/messages/:chatId", authMiddleware,async (req, res) => {
                 content,
                 sender,
                 chat:chatId,
+                messageType: req.file ? filetype: 'text',
                 fileurl: req.file ? fileurl : null,
                 filetype: req.file ? filetype : null,
                 mediaSize: req.file ? sizeMB : null,

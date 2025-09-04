@@ -4,6 +4,9 @@ const chatschema=new mongoose.Schema({
         ref:"User",
         required:true
     }],
+    unreadCountPerUser:{
+        type:Object
+    },
     latestMessage:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Message"
@@ -11,6 +14,13 @@ const chatschema=new mongoose.Schema({
     isGroupChat:{
         type:Boolean,
         default:false
+    },
+    chatImage:{
+        type:String,
+        default:`http://localhost:${process.env.PORT}/static/groupImage.png`
+    },
+    chatName:{
+        type:String
     },
     admin:{
         type:mongoose.Schema.Types.ObjectId,

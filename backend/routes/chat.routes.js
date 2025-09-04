@@ -6,6 +6,36 @@ import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 router.use(express.json());
+router.get("/allChats",authMiddleware,async (req, res) => {
+ try{
+    const chats= await Chat.find({ users: req.user._id }).populate("users","-password").populate("latestMessage").populate({path:"messages",populate:{path:"sender",select:"username _id receivedByUsers"}}).sort({ updatedAt: -1 });
+    if(!chats || chats.length === 0){
+        return res.status(404).json({message:"No chats found"});
+    }
+    const results=chats.map((chat)=>{
+        const unrecievedMessages=chat.messages.filter((msg)=> !msg.receivedByUsers.includes(req.user._id) && msg.sender._id.toString() !== req.user._id.toString());
+        const unreadMessages=chat.messages.filter((msg)=> !msg.readByUsers.includes(req.user._id) && msg.sender._id.toString() !== req.user._id.toString());
+       
+        
+
+        return {
+            chatId:chat._id,
+           
+            chatname:chat.chatname,
+            isGroupChat:chat.isGroupChat,
+            users:chat.users,
+            latestMessage:chat.latestMessage, 
+            unrecievedMessages,
+            chatImage:chat.chatImage,
+           
+            
+    }})
+   
+ }catch(err){
+    console.error("Error fetching chats:", err);
+    return res.status(500).json({ message: "Internal server error", error: err.message });
+ }
+ })
 router.get("/chats",authMiddleware,async (req, res) => {
     try{
         const chats= await Chat.find({ users: req.user._id }).populate("users","-password").populate("latestMessage").sort({ updatedAt: -1 });
@@ -58,7 +88,10 @@ router.get("/chats",authMiddleware,async (req, res) => {
             }
             const newChat= new Chat({
                 users,
-                chatname:req.body.user.username
+                chatName:req.body.user.username,
+                isGroupChat:false,
+                chatImage:req.body.user.profile
+
            
             });
             await newChat.save();
@@ -72,16 +105,16 @@ router.get("/chats",authMiddleware,async (req, res) => {
     });
     router.post("/chats/creatGroupChat",authMiddleware, async (req, res) => {
         try{
-            const {users,chatname,grouprofile}=req.body;
-            if(!users || users.length <3 || !chatname){
+            const {users,chatName,chatImage}=req.body;
+            if(!users || users.length <3 || !chatName){
                 return res.status(400).json({message:"At least three users are required to create a group chat or chatname is required"});
             }
             const newGroupChat= new Chat({
                 users,
-                chatname,
+                chatName,
                 isGroupChat:true,
                 admin:req.user._id,
-                groupprofile
+                chatImage
             });
             await newGroupChat.save();
             const populatedGroupChat=await newGroupChat.populate("users","-password").populate("latestMessage");
@@ -222,21 +255,21 @@ router.get("/chats",authMiddleware,async (req, res) => {
     });
     router.get("/chats/byChatName/:chatname", authMiddleware, async (req, res) => {
         try{
-            const {chatname}=req.params;
-            const regexquery = new RegExp(chatname, 'i'); // Case-insensitive search
-            const chats = await Chat.find({ chatname: regexquery})
+            const {chatName}=req.params;
+            const regexquery = new RegExp(chatName, 'i'); // Case-insensitive search
+            const chats = await Chat.find({ chatName: regexquery})
                 .populate("users", "-password")
                 .populate("latestMessage")
                 .sort({ updatedAt: -1 });
-            chats=chats.filter((chat)=>{chat.isGroupchat==false});
-            const groupChats= await Chat.find({ chatname: regexquery, isGroupChat: true,users:{ $in: [req.user._id] } });
-            const userChats = await User.find({ username: regexquery }).select("_id username profile");
-            const allChats = [...chats,...userChats,...groupChats];
+            
+            const chatsWhereUserIsPart= await Chat.find({ chatname: regexquery,users:{ $in: [req.user._id] } }).populate("users", "-password").populate("latestMessage").sort({ updatedAt: -1 });
+            const chatsWhereUserIsNotPart = await User.find({ username: regexquery }).select("_id username profile");
+            const allChats = [ ...chatsWhereUserIsPart, ...chatsWhereUserIsNotPart];
             if(allChats.length === 0){
                 return res.status(404).json({message:"No chats found with the given name"});
             }
         
-            return res.status(200).json(allChats);
+            return res.status(200).json([chatsWhereUserIsPart,chatsWhereUserIsNotPart]);
 
         }
         catch(err){
