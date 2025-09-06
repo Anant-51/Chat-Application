@@ -58,7 +58,7 @@ router.get("/chats",authMiddleware,async (req, res) => {
                 return res.status(400).json({message:"User ID is required"});
             }
             const chat=await Chat.findOne({
-                users: { $all: [req.user._id,userId] },
+                users: { $all: [req.user._id,userId] }
             }).populate("users","-password").populate("latestMessage");
             if(!chat){
                c=0;
@@ -96,11 +96,11 @@ router.get("/chats",authMiddleware,async (req, res) => {
             });
             await newChat.save();
             const populatedChat=await newChat.populate("users","-password").populate("latestMessage");
-            return res.status(201).json(populatedChat); 
+            return res.status(201).json({populatedChat,done:"1"}); 
         }
         catch(err){
             console.error("Error creating chat:", err);
-            return res.status(500).json({ message: "Internal server error", error: err.message });
+            return res.status(500).json({ message: "Internal server error", error: err.message,done:"0" });
         }
     });
     router.post("/chats/creatGroupChat",authMiddleware, async (req, res) => {
@@ -118,11 +118,11 @@ router.get("/chats",authMiddleware,async (req, res) => {
             });
             await newGroupChat.save();
             const populatedGroupChat=await newGroupChat.populate("users","-password").populate("latestMessage");
-            return res.status(201).json(populatedGroupChat);
+            return res.status(201).json({populatedGroupChat,done:"1"});
         }
         catch(err){
             console.error("Error creating group chat:", err);
-            return res.status(500).json({ message: "Internal server error", error: err.message });
+            return res.status(500).json({ message: "Internal server error", error: err.message ,done:"0" });
         }   
     });
     router.post("/chats/removeuserFromgroup/:chatId",authMiddleware, async (req, res) => {

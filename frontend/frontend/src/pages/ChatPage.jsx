@@ -1,9 +1,8 @@
 import React, { use, useLayoutEffect, useRef } from 'react'
 import { useState,useCallback,useEffect,useRef} from 'react'
-import {List} from react-window
-import socket from '../socket.js'
+import { VariableSizeList as List } from 'react-window';
 import useCentralStore from '../centralStore.jsx'
-import MessageRenderer from '../components/messageRenderer.jsx'
+import MessageRenderer from '../components/MessageRenderer.jsx'
 const messages=useCentralStore((state)=>state.messages);
 const user=useCentralStore((state)=>state.user);
 const activeChatId=useCentralStore((state)=>state.activeChatId);
@@ -12,6 +11,7 @@ const prependMessage=useCentralStore((state)=>state.prependMessage);
 const setInitialMessages=useCentralStore((state)=>state.setInitialMessages);
 const setTypingInformationAdd=useCentralStore((state)=>state.setTypingInformationAdd);
 const setTypingInformationDelete=useCentralStore((state)=>state.setTypingInformationDelete);
+import Footer from '../components/Footer.jsx';
 
 const updateMessageTick=useCentralStore((state)=>state.updateMessageTick);
 
@@ -20,7 +20,7 @@ const updateMessageTick=useCentralStore((state)=>state.updateMessageTick);
 
 
 
-const chatpage = () => {
+const ChatPage = () => {
   /* const [messages, setMessages] = useState([]); */
   const[initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -105,7 +105,7 @@ const chatpage = () => {
   }, [activeChatId, userId]);
  
 
-  const groupMessages=(messages) => {
+ /*  const groupMessages=(messages) => {
     const group=[];
     const currentGroup=[];
     const lastSender=null;
@@ -129,8 +129,8 @@ const chatpage = () => {
     return group;
 
 
-    }
-    const groups=React.useMemo(() => groupMessages(messages), [messages]);
+    } */
+    // const groups=React.useMemo(() => groupMessages(messages), [messages]);
   const fetchmessages=useCallback(async (cursor=null)=>{
     try{
       setLoading(true);
@@ -159,7 +159,7 @@ const chatpage = () => {
         setCursor(data.nextCursor);
         setInitialLoading(false);
         setHasMore(data.hasMore);
-        listref.current.scrollTo(messages.length - 1);
+        listref.current.scrollToItem(messages.length - 1);
       }
     }
   }catch(err){
@@ -171,7 +171,7 @@ const setSize = useCallback((i, size) => {
   if(!sizeRef.current[i] || sizeRef.current[i] !== size) {
     sizeRef.current[i] = size;
     if (listref.current) {
-      listref.current.resetAfterIndex(0);
+      listref.current.resetAfterIndex(i);
     }
   }
 }, [listref]);
@@ -222,7 +222,7 @@ const getSize=(index) => {
 
 
 
-const messageRow=({ index, style,data}) => {
+/* const messageRow=({ index, style,data}) => {
  const{groups,setSize}=data;
   const group=groups[index];
   const rowRef = useRef(null);
@@ -246,27 +246,54 @@ const messageRow=({ index, style,data}) => {
       ))}
     </div>
   )
+}; */
+const messageRow=({ index, style,data}) => {
+  const{messages,setSize}=data;
+  const rowRef = useRef(null);
+  useLayoutEffect(() => {
+    if (rowRef.current) {
+      const el=rowRef.current;
+      const rectheight = el.getBoundingClientRect().height;
+      const style=window.getComputedStyle(el);
+      const marginTop = parseFloat(style.marginTop) || 0;
+      const marginBottom = parseFloat(style.marginBottom) || 0;
+      const height = rectheight + marginTop + marginBottom;
+      setSize(index, height);
+    }
+  }, [index,messages, setSize]);
+  return(
+    <div ref={rowRef} style={{...style,marginBottom:messages[index].sender._id===messages[index-1]?.sender._id?"10px":"0px"}}>
+      <MessageRenderer message={messages[index]} />
+    </div>
+  )
 };
      
 
 
 
   return (
+    <div style={{display:"flex",flexDirection:"column",height:"100vh",backgroundColor:"white"}}>
+    <div style={{flex:1,overflow:"hidden"}}>
     <List ref={listref}
     outerRef={outerRef}
-    height={height}
-    width={width}
+    height={window.innerHeight-50}
+    width="100%"
     itemCount={messages.length}
-    itemData={{groups, setSize}}
+    // itemData={{groups, setSize}}
+    itemData={{messages,setSize}}
     itemSize={getSize}
-    onScroll={onScroll}
-    style={{overflowY:"auto",padding:"10px"}}>
+    onScroll={onScroll}>
+  
     {messageRow}
 
 
 
     </List>
+    </div>
+    <Footer/>
+    </div>
+    
   )
 }
 
-export default chatpage;
+export default ChatPage;
