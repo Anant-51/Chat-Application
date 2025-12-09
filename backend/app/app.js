@@ -13,7 +13,6 @@ import http from "http";
 import User from "../models/user.model.js";
 import Chat from "../models/chat.model.js";
 import Message from "../models/message.model.js";
-import e from "express";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
