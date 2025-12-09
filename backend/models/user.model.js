@@ -1,56 +1,57 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-const userschema= new mongoose.Schema({
-    username:{
-        type:String,
-        required:true,
-
-    },email:{
-        type:String,
-        required:true,
-        unique:true
-
+const userschema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
     },
-    password:{
-        type:String,
-        required:true
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    profile:{
-        type:String,
-        default:`http://localhost:${process.env.PORT}/static/profileImage.png`
+    password: {
+      type: String,
+      required: true,
+    },
+    profile: {
+      type: String,
+    },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
+    statusMessage: {
+      type: String,
+      default: " ",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-    },isOnline:{
-        type:Boolean,
-        default:false
-    }
-},{
-    timestamps:true
-});
-
-
-userschema.pre("save",async function(next){
-    if(!this.isModified("password")){
-        return next();
-    }
-    try{
-    const hashedpassword=await bcrypt.hash(this.password,10);
-    this.password=hashedpassword;
+userschema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  try {
+    const hashedpassword = await bcrypt.hash(this.password, 10);
+    this.password = hashedpassword;
     next();
-    }
-    catch(err){
-        console.log("error hashing password",err);
-    
-    }
-       
+  } catch (err) {
+    console.log("error hashing password", err);
+  }
 });
-userschema.methods.comparepassword=async function(candidatePassword){
-    try{
-    return  bcrypt.compare(candidatePassword,this.password);
-    }catch(err){
-      throw new Error("Error comparing passwords: " + err.message);
-    }
-}
+userschema.methods.comparepassword = async function (candidatePassword) {
+  try {
+    return bcrypt.compare(candidatePassword, this.password);
+  } catch (err) {
+    throw new Error("Error comparing passwords: " + err.message);
+  }
+};
 
-const User=mongoose.model("User",userschema);
+const User = mongoose.model("User", userschema);
 
 export default User;
