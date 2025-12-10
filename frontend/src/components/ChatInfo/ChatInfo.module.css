@@ -1,0 +1,106 @@
+.container {
+  display: flex;
+  height: 70%;
+  width: 450px;
+
+  background: rgba(32, 44, 51, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  overflow: hidden;
+  position: absolute;
+  top: 60px;
+  left: 5px;
+  z-index: 100;
+
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+  color: #e9edef;
+  font-family: "Segoe UI", sans-serif;
+  animation: fadeSlideIn 0.2s ease-out;
+}
+
+.leftPanel {
+  width: 180px;
+  background: #111b21;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+
+  gap: 2px;
+}
+
+.leftPanelOption {
+  padding: 14px 18px;
+
+  color: #d1d7db;
+  font-size: 14px;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.leftPanelOption:hover {
+  background: rgba(233, 237, 239, 0.06);
+}
+
+.leftPanelOptionActive {
+  padding: 14px 18px;
+
+  background: #2a3942;
+  color: #ffffff;
+
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+
+  transition: background 0.15s ease;
+}
+
+.leftPanelOptionActive:hover {
+  background: #35444c;
+}
+
+.rightPanel {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(32, 44, 51, 0.3);
+  backdrop-filter: blur(18px);
+  padding-right: 4px;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+
+  color: #e9edef;
+
+  overflow-y: auto;
+}
+
+.rightPanel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rightPanel::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 10px;
+}
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
