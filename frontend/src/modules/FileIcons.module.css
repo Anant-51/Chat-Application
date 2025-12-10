@@ -1,0 +1,8 @@
+.file-icon {
+  width: 48px;
+  height: 48px;
+  padding: 8px;
+  background: #f3f4f6;   /* light gray */
+  border-radius: 12px;   /* rounded corners */
+  object-fit: contain;   /* keep proportions */
+}

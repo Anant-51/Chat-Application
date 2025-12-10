@@ -1,0 +1,11 @@
+.user{
+    align-self:flex-end;
+    background:#dcf8c6
+    
+
+}
+
+.other{
+    align-self:flex-start;
+    background:#fff
+}
