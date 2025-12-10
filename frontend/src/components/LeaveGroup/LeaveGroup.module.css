@@ -1,0 +1,60 @@
+.container {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.modalBox {
+  background: #1f2c33;
+  width: 300px;
+  padding: 22px;
+  border-radius: 14px;
+  text-align: center;
+  color: #e9edef;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.message {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #d1d7db;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.yesButton {
+  flex: 1;
+  background: #ff4f4f;
+  color: white;
+  padding: 10px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.1s ease-in-out;
+}
+.yesButton:hover {
+  background: #e04444;
+}
+
+.noButton {
+  flex: 1;
+  background: #2e3b45;
+  color: #e9edef;
+  padding: 10px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.1s ease-in-out;
+}
+.noButton:hover {
+  background: #3a4a54;
+}
