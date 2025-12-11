@@ -1,0 +1,113 @@
+:root {
+  --primary: #1a3c6e;
+  --primary-light: #2e5c9a;
+  --background: #f4f6fa;
+  --card-bg: #ffffff;
+  --text-dark: #1c1c1c;
+  --text-muted: #6b6b6b;
+  --input-border: #d1d5db;
+  --button-bg: #1a3c6e;
+  --button-hover: #2e5c9a;
+  --error-red: #e63946;
+  --white: #ffffff;
+}
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--background);
+  font-family: "Helvetica", sans-serif;
+}
+
+.leftSection {
+  flex: 1;
+  background-color: var(--primary);
+  color: var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.appName {
+  font-size: 64px;
+  font-weight: bold;
+  color: var(--white);
+}
+
+.tagLine {
+  font-size: 20px;
+  margin-top: 8px;
+  color: var(--white);
+}
+
+.rightSection {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background);
+}
+
+.formContainer {
+  background-color: var(--card-bg);
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.submitButton {
+  width: 100%;
+  background-color: var(--button-bg);
+  color: var(--white);
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submitButton:hover {
+  background-color: var(--button-hover);
+}
+
+.errorBox {
+  background-color: #ffe6e6;
+  color: var(--error-red);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.createAccountButton {
+  display: block;
+  margin-top: 16px;
+  text-align: center;
+  background-color: var(--primary-light);
+  color: var(--white);
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.createAccountButton:hover {
+  background-color: var(--primary);
+}
